@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+if [ $# -eq 0 ]; then
+    echo "You must supply the public hostname for your puppet master."
+    echo
+    echo "What is the hostname you'll configure you puppet agents to connect to?"
+    echo "You should probably use that one. :)"
+    exit 1
+fi
+
+CERTNAME=$1
+
+SSLDIR="data/puppet/ssl"
+NGINXDIR="data/nginx"
+
+mkdir -p ${SSLDIR}
+mkdir -p ${NGINXDIR}
+
+echo "[boostrap-ssl] Generating certificate for ${CERTNAME}..."
+./puppet cert --generate ${CERTNAME} 
+
+echo "[boostrap-ssl] Configuring load balancer for ${CERTNAME}..."
+echo "[boostrap-ssl] Copying CA cert and CRL into place..."
+cp ${SSLDIR}/ca/ca_pub.pem ${NGINXDIR}/ca_pub.pem
+cp ${SSLDIR}/ca/ca_crt.pem ${NGINXDIR}/ca_crt.pem
+cp ${SSLDIR}/ca/ca_crl.pem ${NGINXDIR}/ca_crl.pem
+echo "[boostrap-ssl] Copying server cert and key into place..."
+cp ${SSLDIR}/certs/${CERTNAME}.pem ${NGINXDIR}/cert.pem
+cp ${SSLDIR}/private_keys/${CERTNAME}.pem ${NGINXDIR}/key.pem
+
+echo "[boostrap-ssl] Done. SSL stuff initialized in ${SSLDIR} and ${NGINXDIR}."

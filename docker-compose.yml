@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  puppet:
+    build: ./docker-puppetrack
+    ports:
+      - 8140
+    volumes:
+      - ./data/code:/etc/puppetlabs/code/
+      - ./data/puppet/ssl:/etc/puppetlabs/puppet/ssl/
+
+  loadbalancer:
+    build: ./docker-puppetlb
+    depends_on:
+      - puppet
+    ports:
+     - "8140:8140"
+    volumes:
+     - ./data/nginx:/app
