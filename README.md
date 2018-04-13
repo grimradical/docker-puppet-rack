@@ -33,6 +33,10 @@ required volumes and starts up the containers in the right order.
 
 # Getting started
 
+Build the containers:
+
+    docker-compose build
+
 If you'd like to stand up a master with the name of "puppet", then run:
 
     ./bootstrap-ssl puppet
