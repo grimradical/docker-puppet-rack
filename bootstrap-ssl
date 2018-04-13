@@ -17,8 +17,10 @@ NGINXDIR="data/nginx"
 mkdir -p ${SSLDIR}
 mkdir -p ${NGINXDIR}
 
-echo "[boostrap-ssl] Generating certificate for ${CERTNAME}..."
-./puppet cert --generate ${CERTNAME} 
+if [ ! -d ${SSLDIR}/ca ]; then
+  echo "[boostrap-ssl] Generating certificate for ${CERTNAME}..."
+  ./puppet cert --generate ${CERTNAME} 
+fi
 
 echo "[boostrap-ssl] Configuring load balancer for ${CERTNAME}..."
 echo "[boostrap-ssl] Copying CA cert and CRL into place..."
