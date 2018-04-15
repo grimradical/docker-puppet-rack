@@ -11,7 +11,9 @@ container should expose port 8140 only to an upstream reverse-proxy. This
 container expects a volume mounted into `/etc/puppetlabs/puppet/ssl` that has
 appropriate CA, cert, and key material for your installation. The container
 expects a volume mounted at `/etc/puppetlabs/code` containing the actual puppet
-code for this installation.
+code for this installation. If you mount a volume at `/puppet-conf` containing
+a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
+use those files instead of the defaults.
 
 There is another container running nginx, that handles SSL termination,
 reverse-proxying, and load-balancing. Port 8140 on this container can be

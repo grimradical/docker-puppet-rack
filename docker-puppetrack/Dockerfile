@@ -13,18 +13,12 @@ RUN apt-get update && \
     apt-get install --no-install-recommends git -y puppet-agent && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    gem install --no-rdoc --no-ri r10k
-
-RUN apt-get update && apt-get -y install make gcc libssl-dev
-RUN gem install unicorn rack
-RUN apt-get -y remove make gcc libssl-dev
-
-#RUN puppet config set autosign true --section master
-#RUN puppet config set dns_alt_names puppet --section master
-RUN puppet config set always_cache_features true --section master
-RUN puppet resource user puppet ensure=present
-RUN chown -R puppet:puppet /etc/puppetlabs/
-RUN chown -R puppet:puppet /var/log/puppetlabs/
+    gem install --no-rdoc --no-ri r10k && \
+    apt-get update && apt-get -y install make gcc libssl-dev && \
+    gem install unicorn rack && \
+    apt-get -y remove make gcc libssl-dev && \
+    puppet config set user root --section master && \
+    puppet config set group root --section master
 
 COPY docker-entrypoint.sh /
 COPY config.ru /
