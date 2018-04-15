@@ -18,7 +18,8 @@ RUN apt-get update && \
     gem install unicorn rack && \
     apt-get -y remove make gcc libssl-dev && \
     puppet config set user root --section master && \
-    puppet config set group root --section master
+    puppet config set group root --section master && \
+    puppet config set always_cache_features true --section master
 
 COPY docker-entrypoint.sh /
 COPY config.ru /
