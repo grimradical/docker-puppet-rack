@@ -94,8 +94,9 @@ required volumes and starts up the containers in the right order.
 # TODO
 
 There are a ton of ways you can help make this better, with very few things
-requiring any hardcore programming knowledge. Please send pull requests! Here
-are some areas where we could use help:
+requiring any hardcore programming knowledge. Here are some areas where we could
+use help. Please send pull requests, including those that add to the list of
+TODOs!
 
 #### Hygiene
 
