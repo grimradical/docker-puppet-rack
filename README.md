@@ -1,8 +1,8 @@
 # What is this?
 
-This repo lets you stand up a ruby-based puppet environment in Docker.
+This repo lets you stand up a Puppet server stack in Docker.
 
-This is an experiment, so caveat emptor and all that.
+This is unsupported, so caveat emptor and all that.
 
 # Architecture
 
@@ -70,16 +70,18 @@ Now spin up a fresh container that has our agent bits on it:
 This will run the puppetmaster image, but instead of starting up a master it'll
 just startup a shell. In that container, run:
 
-    puppet agent -t --server loadbalancer --verbose
+    puppet agent -t --server loadbalancer
 
-This will terminate because the cert hasn't been signed for this new agent. In
-another window on the docker host (not inside this new container):
+This will terminate because the cert hasn't been signed for this new agent.
+Because this "agent" container is really just the same container as a master,
+complete with read/write access to the SSL directory, we can just sign our cert
+ourselves (cue evil music):
 
-    ./puppet cert sign --all
+    puppet cert sign --all
 
-Once that's done, you can go back to the agent container and re-run:
+You can now re-run the agent:
 
-    /opt/puppetlabs/bin/puppet agent -t --server loadbalancer --verbose
+    puppet agent -t --server loadbalancer
 
 ...and all should be well. If you want to try actually doing something with
 this agent, then on the docker host:
@@ -88,3 +90,48 @@ this agent, then on the docker host:
     echo 'node default { notify {"Hello":} }' > data/code/environments/production/manifests/site.pp
 
 Now when you run the agent, you should actually see some results. :)
+
+# TODO
+
+There are a ton of ways you can help make this better, with very few things
+requiring any hardcore programming knowledge. Please send pull requests! Here
+are some areas where we could use help:
+
+#### Hygiene
+
+- [ ] Move images into their own repos (once they're sufficiently baked)
+  - [ ] Add in metadata specifications for each
+
+#### PuppetDB
+
+- [ ] Add container for PDB
+  - [ ] Port to Alpine linux, to minimize size
+- [ ] Modify SSL bootstrap script to also generate cert for the PDB daemon
+- [ ] Connect master containers to PDB
+   - [ ] Modify master container to include PDB terminus
+   - [ ] Modify master container to point at PDB daemon
+   - [ ] Make this configurable (using multiple compose files) for those that don't need or want to run PDB
+- [ ] Add container for postgres
+   - [ ] Add relevant extensions (e.g. pg_trm)
+- [ ] _investigate_ Can we use cert-based auth for postgres?
+
+#### Master
+
+- [ ] Environment variable for configuring worker processes
+- [ ] Enable override of default environment.conf
+- [ ] Enable override of default autosign.conf
+- [ ] Enable override of default custom_trusted_oid_mapping.yaml.conf
+- [ ] _investigate_ Give masters only minimum SSL data required to run
+- [ ] Port to Alpine linux, to minimize size
+
+#### CA
+
+- [ ] Externalize CA into its own container
+- [ ] _investigate_ Does the loadbalancer need to proxy/rewrite CA requests?
+
+#### Load balancer
+
+- [ ] Make hostname of upstream configurable (environment vars?)
+- [ ] _investigate_ Offload static file serving from Masters
+- [ ] _investigate_ Try the nginx Alpine-based image
+- [ ] _investigate_ Can we make upstreams dynamic? SRV records? Querying the container runtime?
