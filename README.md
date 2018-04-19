@@ -4,35 +4,6 @@ This repo lets you stand up a Puppet server stack in Docker.
 
 This is unsupported, so caveat emptor and all that.
 
-# Architecture
-
-There is a single container running unicorn and N ruby puppet daemons. This
-container should expose port 8140 only to an upstream reverse-proxy. This
-container expects a volume mounted into `/etc/puppetlabs/puppet/ssl` that has
-appropriate CA, cert, and key material for your installation. The container
-expects a volume mounted at `/etc/puppetlabs/code` containing the actual puppet
-code for this installation. If you mount a volume at `/puppet-conf` containing
-a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
-use those files instead of the defaults.
-
-There is another container running nginx, that handles SSL termination,
-reverse-proxying, and load-balancing. Port 8140 on this container can be
-exposed to the world; this is the host/port that agents should connect to.
-This container expects a volume mounted at `/app` that contains your CA pubkey,
-CRL, server cert, and server key.
-
-The `bootstrap-ssl` script will help setup and populate the volumes these
-containers need.
-
-The `puppet` script lets you run any puppet subcommand (e.g. `puppet cert
---sign`) against the SSL files contained in the volumes. It spins up a
-temporary container with our agent installed, mounts the SSL directory into
-`/etc/puppetlabs/ssl`, runs the specified subcommand, then terminates. You can
-use this script for care and feeding of the puppet deployment.
-
-There is a docker-compose file in this repo that automatically maps the
-required volumes and starts up the containers in the right order.
-
 # Getting started
 
 Build the containers:
@@ -90,6 +61,35 @@ this agent, then on the docker host:
     echo 'node default { notify {"Hello":} }' > data/code/environments/production/manifests/site.pp
 
 Now when you run the agent, you should actually see some results. :)
+
+# Architecture
+
+There is a single container running unicorn and N ruby puppet daemons. This
+container should expose port 8140 only to an upstream reverse-proxy. This
+container expects a volume mounted into `/etc/puppetlabs/puppet/ssl` that has
+appropriate CA, cert, and key material for your installation. The container
+expects a volume mounted at `/etc/puppetlabs/code` containing the actual puppet
+code for this installation. If you mount a volume at `/puppet-conf` containing
+a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
+use those files instead of the defaults.
+
+There is another container running nginx, that handles SSL termination,
+reverse-proxying, and load-balancing. Port 8140 on this container can be
+exposed to the world; this is the host/port that agents should connect to.
+This container expects a volume mounted at `/app` that contains your CA pubkey,
+CRL, server cert, and server key.
+
+The `bootstrap-ssl` script will help setup and populate the volumes these
+containers need.
+
+The `puppet` script lets you run any puppet subcommand (e.g. `puppet cert
+--sign`) against the SSL files contained in the volumes. It spins up a
+temporary container with our agent installed, mounts the SSL directory into
+`/etc/puppetlabs/ssl`, runs the specified subcommand, then terminates. You can
+use this script for care and feeding of the puppet deployment.
+
+There is a docker-compose file in this repo that automatically maps the
+required volumes and starts up the containers in the right order.
 
 # TODO
 
