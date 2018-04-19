@@ -118,9 +118,9 @@ are some areas where we could use help:
 #### Master
 
 - [X] Auto-configure number of worker processes
-- [ ] Enable override of default environment.conf
-- [ ] Enable override of default autosign.conf
-- [ ] Enable override of default custom_trusted_oid_mapping.yaml.conf
+- [X] Enable override of default environment.conf
+- [X] Enable override of default autosign.conf
+- [X] Enable override of default custom_trusted_oid_mapping.yaml.conf
 - [ ] _investigate_ Give masters only minimum SSL data required to run
 - [ ] Port to Alpine linux, to minimize size
 
