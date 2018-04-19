@@ -132,6 +132,7 @@ are some areas where we could use help:
 #### Load balancer
 
 - [ ] Make hostname of upstream configurable (environment vars?)
+- [X] Make number of worker processes configurable
 - [ ] _investigate_ Offload static file serving from Masters
-- [ ] _investigate_ Try the nginx Alpine-based image
+- [X] Try the nginx Alpine-based image
 - [ ] _investigate_ Can we make upstreams dynamic? SRV records? Querying the container runtime?
