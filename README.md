@@ -117,7 +117,7 @@ are some areas where we could use help:
 
 #### Master
 
-- [ ] Environment variable for configuring worker processes
+- [X] Auto-configure number of worker processes
 - [ ] Enable override of default environment.conf
 - [ ] Enable override of default autosign.conf
 - [ ] Enable override of default custom_trusted_oid_mapping.yaml.conf
