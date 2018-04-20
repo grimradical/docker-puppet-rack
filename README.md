@@ -74,10 +74,11 @@ a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
 use those files instead of the defaults.
 
 There is another container running nginx, that handles SSL termination,
-reverse-proxying, and load-balancing. Port 8140 on this container can be
-exposed to the world; this is the host/port that agents should connect to.
-This container expects a volume mounted at `/app` that contains your CA pubkey,
-CRL, server cert, and server key.
+reverse-proxying, and load-balancing. Port 8140 on this container can be exposed
+to the world; this is the host/port that agents should connect to. This
+container expects a volume mounted at `/app` that contains your CA pubkey, CRL,
+server cert, and server key. It expects an environment variable, `$UPSTREAMS`,
+that contains the `host:port` of the puppetmaster it should proxy to.
 
 The `bootstrap-ssl` script will help setup and populate the volumes these
 containers need.
@@ -132,8 +133,9 @@ TODOs!
 
 #### Load balancer
 
-- [ ] Make hostname of upstream configurable (environment vars?)
+- [X] Make hostname of upstream configurable (environment vars?)
 - [X] Make number of worker processes configurable
 - [ ] _investigate_ Offload static file serving from Masters
 - [X] Try the nginx Alpine-based image
 - [ ] _investigate_ Can we make upstreams dynamic? SRV records? Querying the container runtime?
+- [ ] Automatically issue a nginx reload when the CRL is updated

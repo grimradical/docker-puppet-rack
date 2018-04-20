@@ -16,5 +16,7 @@ services:
       - puppet
     ports:
      - "8140:8140"
+    environment:
+     - UPSTREAMS=puppet:8140
     volumes:
      - ./data/nginx:/app
