@@ -9,4 +9,8 @@ for f in ${confs[*]}; do
   fi
 done
 
+if [ $DISABLE_CA ]; then
+  /opt/puppetlabs/bin/puppet config set ca false --section master
+fi
+
 exec "$@"

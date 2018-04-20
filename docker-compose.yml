@@ -5,8 +5,18 @@ services:
     build: ./docker-puppetrack
     ports:
       - 8140
+    environment:
+      - DISABLE_CA=true
     volumes:
       - ./data/code:/etc/puppetlabs/code/
+      #- ./data/puppet/ssl:/etc/puppetlabs/puppet/ssl/
+      - ./data/puppet/conf:/puppet-conf/
+
+  ca:
+    build: ./docker-puppetrack
+    ports:
+      - 8140
+    volumes:
       - ./data/puppet/ssl:/etc/puppetlabs/puppet/ssl/
       - ./data/puppet/conf:/puppet-conf/
 
@@ -14,9 +24,11 @@ services:
     build: ./docker-puppetlb
     depends_on:
       - puppet
+      - ca
     ports:
      - "8140:8140"
     environment:
      - UPSTREAMS=puppet:8140
+     - CA=ca:8140
     volumes:
      - ./data/nginx:/app

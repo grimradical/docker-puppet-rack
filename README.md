@@ -73,6 +73,10 @@ code for this installation. If you mount a volume at `/puppet-conf` containing
 a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
 use those files instead of the defaults.
 
+There is another container, running the same image as above, that acts as the
+CA. It exposes port 8140 to an upstream reverse-proxy. This container expects
+the same SSL and config volume mounts as the container above
+
 There is another container running nginx, that handles SSL termination,
 reverse-proxying, and load-balancing. Port 8140 on this container can be exposed
 to the world; this is the host/port that agents should connect to. This
@@ -128,8 +132,9 @@ TODOs!
 
 #### CA
 
-- [ ] Externalize CA into its own container
-- [ ] _investigate_ Does the loadbalancer need to proxy/rewrite CA requests?
+- [X] Externalize CA into its own container
+- [ ] Independent env var control of the number of CA workers
+- [X] _investigate_ Does the loadbalancer need to proxy/rewrite CA requests?
 
 #### Load balancer
 
