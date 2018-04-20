@@ -36,15 +36,16 @@ automatically:
 
 Now spin up a fresh container that has our agent bits on it:
 
-    docker-compose run puppet /bin/bash
+    docker-compose run ca /bin/bash
 
-This will run the puppetmaster image, but instead of starting up a master it'll
-just startup a shell. In that container, run:
+This will run the CA image, but instead of starting up a master it'll just
+startup a shell. The CA also has our agent bits installed, so it'll work in a
+pinch for testing purposes. In that container, run:
 
     puppet agent -t --server loadbalancer
 
 This will terminate because the cert hasn't been signed for this new agent.
-Because this "agent" container is really just the same container as a master,
+Because this "agent" container is really just the same container as the CA,
 complete with read/write access to the SSL directory, we can just sign our cert
 ourselves (cue evil music):
 
