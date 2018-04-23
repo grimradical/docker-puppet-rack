@@ -65,6 +65,8 @@ Now when you run the agent, you should actually see some results. :)
 
 # Architecture
 
+![Architecture digram](docs/arch-diag.png)
+
 There is a single container running unicorn and N ruby puppet daemons. This
 container should expose port 8140 only to an upstream reverse-proxy. This
 container expects a volume mounted into `/etc/puppetlabs/puppet/ssl` that has
