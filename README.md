@@ -112,6 +112,10 @@ SSL material for the deployment (the normal "compiler" container does not).
 * API
   * the entire Puppet HTTP API
 
+This container runs an nginx reverse-proxy. It terminates SSL and routes
+requests to the other containers. This container is the one whose port can be
+exposed to the outside world.
+
 ### Misc
 
 The `bootstrap-ssl` script will help setup and populate the volumes these
