@@ -14,14 +14,10 @@ If you'd like to stand up a master with the name of "puppet", then run:
 
     ./bootstrap-ssl puppet
 
-This will create a data directory, suitable for use with docker-compose. Check
-it:
+This will create a `./data` directory, suitable for use with docker-compose. Now
+you can spin things up:
 
-    find -type f data
-
-Now you can spin things up:
-
-    docker-compose up --build
+    docker-compose up
 
 That should map port 8140 to your docker host.
 
@@ -67,25 +63,56 @@ Now when you run the agent, you should actually see some results. :)
 
 ![Architecture digram](docs/arch-diag.png)
 
-There is a single container running unicorn and N ruby puppet daemons. This
-container should expose port 8140 only to an upstream reverse-proxy. This
-container expects a volume mounted into `/etc/puppetlabs/puppet/ssl` that has
-appropriate CA, cert, and key material for your installation. The container
-expects a volume mounted at `/etc/puppetlabs/code` containing the actual puppet
-code for this installation. If you mount a volume at `/puppet-conf` containing
-a custom `puppet.conf`, `hiera.yaml`, and/or `auth.conf`, the container will
-use those files instead of the defaults.
+### Puppet
 
-There is another container, running the same image as above, that acts as the
-CA. It exposes port 8140 to an upstream reverse-proxy. This container expects
-the same SSL and config volume mounts as the container above
+* Environment variables
+  * `DISABLE_CA` - If set, then disables the CA function within the container
+* Volume mounts
+  * `/etc/puppetlabs/code` - the user's puppet code aka `codedir`
+  * `/puppet-conf` - Can contain any of `puppet.conf`, `hiera.yaml`, `auth.conf`,
+    `environment.conf`, `autosign.conf`,  `custom_trusted_oid_mapping.yaml.conf`.
+    If present, then the file in this directory will be used in place of the stock
+    version
+* Ports and protocols
+  * 8140, plaintext HTTP
+* API
+  * well, the entire Puppet HTTP API, I suppose, minus the CA
 
-There is another container running nginx, that handles SSL termination,
-reverse-proxying, and load-balancing. Port 8140 on this container can be exposed
-to the world; this is the host/port that agents should connect to. This
-container expects a volume mounted at `/app` that contains your CA pubkey, CRL,
-server cert, and server key. It expects an environment variable, `$UPSTREAMS`,
-that contains the `host:port` of the puppetmaster it should proxy to.
+This container users `unicorn`, fronting N `puppet` worker processes via Rack. N
+is determined automatically based on the number of cores visible to the
+container.
+
+### CA
+
+* Volume mounts
+  * `/puppet-conf` - Can contain any of `puppet.conf`, `hiera.yaml`, `auth.conf`,
+    `environment.conf`, `autosign.conf`,  `custom_trusted_oid_mapping.yaml.conf`.
+    If present, then the file in this directory will be used in place of the stock
+    version
+  * `/etc/puppetlabs/puppet/ssl` - standard puppet `ssldir`, complete with CA,
+    cert, and key material needed for the deployment.
+* Ports and protocols
+  * 8140, plaintext HTTP
+* API
+  * the CA HTTP API only
+
+This is the same exact container as the Puppet container, but it only handles
+CA-related requests. Because it's the CA, it does need read/write access to the
+SSL material for the deployment (the normal "compiler" container does not).
+
+### Load balancer
+
+* Environment variables
+  * `UPSTREAMS` - host:port for a Puppet service, so we can proxy to it
+  * `CA` - host:port for the CA service, so we can proxy to it
+* Volume mounts
+  * `/app` - contains your CA pubkey, CRL, server cert, and server key
+* Ports and protocols
+  * 8140, HTTPS
+* API
+  * the entire Puppet HTTP API
+
+### Misc
 
 The `bootstrap-ssl` script will help setup and populate the volumes these
 containers need.
